@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PostCreate;
 use App\Http\Requests\StorePhotoRequest;
+use App\Jobs\ChangeImage;
+use App\Jobs\UploadBigFile;
 use App\Models\Post;
 use Auth;
 use Illuminate\Http\Request;
@@ -14,7 +17,7 @@ class PostController extends Controller
     public function __construct()
     {
         $this->middleware("auth");
-        // $this->authorizeResource(Post::class);
+        $this->authorizeResource(Post::class);
     }
     public function index()
     {
@@ -30,18 +33,22 @@ class PostController extends Controller
     public function add(StorePhotoRequest $request)
     {
         $image = time() . '.' . $request->image->getClientOriginalExtension();
-        $request->image->storeAs('posts', $image);
-        Post::create([
+        $request->file('image')->storeAs('posts', $image);
+        $post = Post::create([
             "user_id" => Auth::user()->id,
             "image"=> $image,
         ]);
+        PostCreate::dispatch($post);
+        ChangeImage::dispatch($post);
         return redirect('post');
     }
     public function delete(Post $post, $id)
     {
-        $this->authorize('delete', $post);
-        // Gate::authorize('delete', $post);
-        Storage::delete($post->image);
+        // $this->authorize('delete', $id);
+        Gate::authorize('delete', $post);
+        $b = Post::where('id', $id)->first();
+        $b = 'posts/'.$b->image;
+        Storage::delete($b);
         $post::where('id', $id)->delete();
         return redirect()->back();
     }

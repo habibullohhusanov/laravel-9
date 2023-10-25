@@ -17,7 +17,6 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
         Post::class => PostPolicy::class,
     ];
 
@@ -30,11 +29,11 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Gate::define('update-photo', function (User $user, Photo $post) {
-            return $user->id === $post->user_id;
+        Gate::define('update-photo', function (User $user, Photo $photo) {
+            return $user->id === $photo->user_id;
         });
-        Gate::define('delete-photo', function (User $user, Photo $post) {
-            return $user->id === $post->user_id;
+        Gate::define('delete-photo', function (User $user, Photo $photo) {
+            return $user->id === $photo->user_id;
         });
     }
 }
