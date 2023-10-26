@@ -31,7 +31,7 @@ class PostPolicy
      */
     public function view(User $user, Post $post)
     {
-        return true;
+
     }
 
     /**
@@ -42,7 +42,7 @@ class PostPolicy
      */
     public function create(User $user)
     {
-        return true;
+
     }
 
     /**
@@ -78,7 +78,7 @@ class PostPolicy
      */
     public function restore(User $user, Post $post)
     {
-        return true;
+
     }
 
     /**
@@ -90,6 +90,6 @@ class PostPolicy
      */
     public function forceDelete(User $user, Post $post)
     {
-        return true;
+
     }
 }

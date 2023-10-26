@@ -2,28 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\PostCreate;
 use App\Http\Requests\StorePhotoRequest;
-use App\Jobs\ChangeImage;
-use App\Jobs\UploadBigFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
+use App\Events\PostCreate;
 use App\Models\Post;
 use Auth;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
     public function __construct()
     {
         $this->middleware("auth");
-        $this->authorizeResource(Post::class);
+        // faqat ulangan controller uchun $this->authorizeResource(Post::class, 'post');
     }
     public function index()
     {
         $posts = Post::paginate(10);
         return view("post.posts", [
-            "posts"=> $posts,
+            "posts" => $posts,
         ]);
     }
     public function add_view()
@@ -36,18 +33,17 @@ class PostController extends Controller
         $request->file('image')->storeAs('posts', $image);
         $post = Post::create([
             "user_id" => Auth::user()->id,
-            "image"=> $image,
+            "image" => $image,
         ]);
         PostCreate::dispatch($post);
-        ChangeImage::dispatch($post);
         return redirect('post');
     }
     public function delete(Post $post, $id)
     {
-        // $this->authorize('delete', $id);
-        Gate::authorize('delete', $post);
+        // $this->authorize('delete', Post::where('id', $id)->first());
+        Gate::authorize('delete', Post::where('id', $id)->first());
         $b = Post::where('id', $id)->first();
-        $b = 'posts/'.$b->image;
+        $b = 'posts/' . $b->image;
         Storage::delete($b);
         $post::where('id', $id)->delete();
         return redirect()->back();
