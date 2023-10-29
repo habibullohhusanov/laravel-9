@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Gate;
 use App\Events\PostCreate;
 use App\Models\Post;
+use App\Notifications\NewPostNotification;
 use Auth;
+use Illuminate\Support\Facades\Notification;
 
 class PostController extends Controller
 {
@@ -36,6 +38,7 @@ class PostController extends Controller
             "image" => $image,
         ]);
         PostCreate::dispatch($post);
+        Notification::send(Auth::user(), new NewPostNotification($post));
         return redirect('post');
     }
     public function delete(Post $post, $id)
